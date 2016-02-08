@@ -12,7 +12,7 @@ typedef struct {
 typedef void* (*pos_t)(void*, int);
 typedef void* (*next_t)(void*);
 typedef void (*print_t)(void*);
-typedef void (*iterator_t)(void*, pos_t, pos_t, next_t, next_t, print_t, size_t, int);
+typedef void (*iterator_t)(void*, next_t, pos_t, next_t, next_t, print_t, size_t, int);
 
 //void recorre(void* a, iterator_t it);
 void forwardIterator(void* a, next_t begin, pos_t end, next_t next, next_t prev, print_t print, size_t size, int total);
