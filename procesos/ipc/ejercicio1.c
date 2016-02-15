@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 int factorial(int);
-void leer(int fd);
-void escribir(int fd);
+void leer(int* fd);
+void escribir(int* fd);
 
 int main(int argc, const char * argv[])
 {
@@ -21,12 +22,10 @@ int main(int argc, const char * argv[])
     }
     else if (pid == 0)
     {
-        close(tuberia[1]);
-        leer(tuberia[0]);
+        leer(tuberia);
     }
     else {
-        close(tuberia[0]);
-        escribir(tuberia[1]);
+        escribir(tuberia);
     }
     
     return 0;
@@ -39,32 +38,28 @@ int factorial(int n) {
 	return total;
 }
 
-void leer(int fd)
+void leer(int* fd)
 {
-    FILE * file;
     int n;
     
-    file = fdopen(fd, "r");
-    
-    while (fscanf(file, "%d", &n) != EOF)
+    while (1)
     {
+		close(fd[1]);
+		read(fd[0], &n, sizeof(int));
+		if (n == 0)
+			exit(0);
         printf("%d! = %d\n", n, factorial(n));
     }
-    
-    fclose(file);
 }
 
-void escribir(int fd)
+void escribir(int* fd)
 {
-    FILE * file;
-    file = fdopen(fd, "w");
-    
-    int n;
-    do {
-        printf("Introduce un número: ");
+    int n = -1;
+
+    while (n != 0) {
+        //printf("Introduce un número: ");
 		scanf("%d", &n);
-        fprintf(file, "%d\n", n);
-    } while (n != 0);
-    
-    fclose(file);
+		close(fd[0]);
+        write(fd[1], &n, sizeof(int));
+    }
 }

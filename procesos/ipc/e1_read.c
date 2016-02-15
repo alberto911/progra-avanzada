@@ -20,7 +20,8 @@ int main(int argc, const char * argv[])
     
     int n;
     while (read(fd, &n, sizeof(int))) {
-        printf("%d! = %d\n", n, factorial(n));
+		if (n != 0)
+        	printf("%d! = %d\n", n, factorial(n));
     }
     
     close(fd);
