@@ -2,50 +2,65 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define L 2
+
 void leerYEscribir(int* fd1, int* fd2);
 
 int main(int argc, const char * argv[])
 {
-	int n = atoi(argv[1]);
-    
-	int **pipes = (int**) malloc(n * sizeof(int*)), **p;
+	int n = atoi(argv[1]);   
+
+	int** pipes = (int**) malloc(n * sizeof(int*));
+	int** p;
 	for (p = pipes; p < pipes + n; ++p) {
-		*pipes = (int*) malloc(2 * sizeof(int));
-		pipe(*pipes);
+		*p = (int*) malloc(2 * sizeof(int));
+		pipe(*p);
 	}
 
-    int *pids = (int*) malloc(n * sizeof(int)), *pid, i = 0;
+    int pid, i = 0, ppid = getpid();
+	int *leer, *escribir;
 
 	char token = 't';
-    write((*(pipes))[1], &token, sizeof(char));
+    write((*pipes)[1], &token, sizeof(char));
    	
-    for (pid = pids; pid < pids + n; ++pid) {	
-		*pid = fork();
+    for (i = 0; i < n; ++i) {
+		pid = fork();
 		
-		if (*pid == -1)
-		{
+		if (pid == -1) {
 		    printf("Error al crear el proceso hijo");
 		    return 1;
 		}
-		else if (*pid == 0)
-		{
-			int j = i % n;
-			i = (i+1) % n;
-			leerYEscribir(*(pipes + j), *(pipes + i));
-			exit(0);
+		else if (pid == 0) {
+			leer = *(pipes + i);
+			close(leer[1]);
+			escribir = *(pipes + (i+1)%n);
+			close(escribir[0]);
+			break;
 		}
 	}
-	
+		
+	if (ppid != getpid()) {
+		int counter = 0;
+		while (counter < L) {
+			leerYEscribir(leer, escribir);
+			++counter;
+		}
+		
+		for (p = pipes; p < pipes + n; ++p)
+			free(*p);
+		free(pipes);
+		exit(0);
+	}
+
 	int total = n, status;
-	while(total > 0) {
+	while (total > 0) {
 		wait(&status);
-		total--;
+		--total;
 	}
 
 	for (p = pipes; p < pipes + n; ++p)
 		free(*p);
 	free(pipes);
-	free(pids);
   
     return 0;
 }
@@ -53,12 +68,10 @@ int main(int argc, const char * argv[])
 void leerYEscribir(int* fd1, int* fd2)
 {    
 	char c;    
-	close(fd1[1]);
 	read(fd1[0], &c, sizeof(char));
 	printf("Soy el proceso %d y tendré el testigo %c por 5 segundos\n", getpid(), c);
 	sleep(5);
 
 	printf("Soy el proceso %d y acabo de mandar el testigo %c\n", getpid(), c);
-	close(fd2[0]);
 	write(fd2[1], &c, sizeof(char));
 }
