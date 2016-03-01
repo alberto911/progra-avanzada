@@ -53,7 +53,6 @@ void manejador(int s) {
 		if (time > 1)
 			--time;
 	}
-	pause();
 }
 
 void terminar(int s) {
