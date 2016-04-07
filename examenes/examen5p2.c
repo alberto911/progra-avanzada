@@ -38,23 +38,30 @@ int main() {
 }
 
 void* administrar(void* p) {
-	int i;
-	for (i = 0; i < N; i = (i+1) % N) {		
-		pthread_mutex_lock(&mutex);
-		if (!fumando[i]) {
-			pthread_mutex_unlock(&mutex);
-			sleep(15);
+	int i, ocupado = 1;
+	while (1) {
+		for (i = 0; i < N; ++i) {		
 			pthread_mutex_lock(&mutex);
-			recursos[i] = 1;
-			if (i == 0)
-				printf("Papel en la mesa\n");
-			else if (i == 1)
-				printf("Tabaco en la mesa\n");
-			else
-				printf("Cerillos en la mesa\n");
+			if (!fumando[i]) {
+				pthread_mutex_unlock(&mutex);
+				ocupado = 0;
+				sleep(15);
+				pthread_mutex_lock(&mutex);
+				recursos[i] = 1;
+				if (i == 0)
+					printf("Papel en la mesa\n");
+				else if (i == 1)
+					printf("Tabaco en la mesa\n");
+				else
+					printf("Cerillos en la mesa\n");
+			}
+			pthread_mutex_unlock(&mutex);
 		}
-		pthread_mutex_unlock(&mutex);
-	} 
+		if (ocupado) {
+			printf("El agente se va a hacer otras actividades\n");
+			sleep(10);
+		}
+	}
 }
 
 void* fumador(void* p) {
