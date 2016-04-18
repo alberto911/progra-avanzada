@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #define N 5000
-#define T 0.001
+#define T 0.01
 
 typedef struct {
 	float x;
@@ -14,7 +14,7 @@ typedef struct {
 
 int main() {
 	int i, totalC1, totalC2;
-	double d1, d2, dC1, dC2;
+	double dC1, dC2, d1, d2, c1x, c1y, c2x, c2y;
 	dato datos[N];
 	dato c1, c2, c1Old, c2Old;
 
@@ -48,36 +48,30 @@ int main() {
 		c1Old = c1;
 		c2Old = c2;
 		totalC1 = totalC2 = 0;
-		c1.x = c1.y = c2.x = c2.y = 0;
+		c1x = c1y = c2x = c2y = 0.0;
 
-		#pragma omp parallel for shared(datos, c1, c2, c1Old, c2Old, totalC1, totalC2) private(i, d1, d2)
+		#pragma omp parallel for default(shared) private(i,d1,d2) schedule(static) reduction(+:totalC1,totalC2,c1x,c1y,c2x,c2y)
 		for (i = 0; i < N; ++i) {
 			d1 = sqrt(pow((c1Old.x - datos[i].x), 2) + pow((c1Old.y - datos[i].y), 2));
 			d2 = sqrt(pow((c2Old.x - datos[i].x), 2) + pow((c2Old.y - datos[i].y), 2));
 			if (d1 < d2) {
 				datos[i].c = 1;
-				#pragma omp critical
-				{
-					c1.x += datos[i].x;
-					c1.y += datos[i].y;
-					++totalC1;
-				}
+				c1x = c1x + datos[i].x;
+				c1y = c1y + datos[i].y;
+				totalC1 = totalC1 + 1;
 			}
 			else {
 				datos[i].c = 2;
-				#pragma omp critical
-				{
-					c2.x += datos[i].x;
-					c2.y += datos[i].y;
-					++totalC2;
-				}
+				c2x = c2x + datos[i].x;
+				c2y = c2y + datos[i].y;
+				totalC2 = totalC2 + 1;
 			}
 		}
 	
-		c1.x /= totalC1;
-		c1.y /= totalC1;
-		c2.x /= totalC2;
-		c2.y /= totalC2;
+		c1.x = c1x / totalC1;
+		c1.y = c1y / totalC1;
+		c2.x = c2x / totalC2;
+		c2.y = c2y / totalC2;
 
 		dC1 = sqrt(pow((c1Old.x - c1.x), 2) + pow((c1Old.y - c1.y), 2));
 		dC2 = sqrt(pow((c2Old.x - c2.x), 2) + pow((c2Old.y - c2.y), 2));
