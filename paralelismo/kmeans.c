@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #define N 5000
-#define T 0.01
+#define T 0.001
 
 typedef struct {
 	float x;
@@ -50,20 +50,27 @@ int main() {
 		totalC1 = totalC2 = 0;
 		c1.x = c1.y = c2.x = c2.y = 0;
 
+		#pragma omp parallel for shared(datos, c1, c2, c1Old, c2Old, totalC1, totalC2) private(i, d1, d2)
 		for (i = 0; i < N; ++i) {
 			d1 = sqrt(pow((c1Old.x - datos[i].x), 2) + pow((c1Old.y - datos[i].y), 2));
 			d2 = sqrt(pow((c2Old.x - datos[i].x), 2) + pow((c2Old.y - datos[i].y), 2));
 			if (d1 < d2) {
 				datos[i].c = 1;
-				c1.x += datos[i].x;
-				c1.y += datos[i].y;
-				++totalC1;
+				#pragma omp critical
+				{
+					c1.x += datos[i].x;
+					c1.y += datos[i].y;
+					++totalC1;
+				}
 			}
 			else {
 				datos[i].c = 2;
-				c2.x += datos[i].x;
-				c2.y += datos[i].y;
-				++totalC2;
+				#pragma omp critical
+				{
+					c2.x += datos[i].x;
+					c2.y += datos[i].y;
+					++totalC2;
+				}
 			}
 		}
 	
