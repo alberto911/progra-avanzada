@@ -7,9 +7,9 @@
 #include <algorithm>
 #include <unistd.h>
 
-#define N 1000000
+#define N 10000
 #define PC 7
-#define PM 2
+#define PM 3
 #define E 0.0001
 
 using namespace std;
@@ -63,13 +63,10 @@ int main () {
 			for (int i = 0; i < N/2; ++i) {
 				int prob = rand() % 10;
 				if (prob < PC) {
-					if (!p1) {
+					if (!p1)
 						p1 = &poblacion[i];
-						//cout << "P1 = " << p1->toDouble() << endl;
-					}
 					else {
 						p2 = &poblacion[i];
-						//cout << "P2 = " << p2->toDouble() << endl;
 						string s1, s2, sub1, sub2;
 
 						int len = rand() % 10;
@@ -94,21 +91,20 @@ int main () {
 						s2.replace(0, len, sub1);
 						poblacion[index].decimales = bitset<20> (s1);
 						poblacion[index].setError(original);
-						//printf("Hijo 1: %.6f %f\n", poblacion[index].toDouble(), poblacion[index].error);
+
 						if (index < N-1) {
 							poblacion[index+1].decimales = bitset<20> (s2);
 							poblacion[index+1].setError(original);
-							//printf("Hijo 2: %.6f %f\n", poblacion[index+1].toDouble(), poblacion[index+1].error);
 						}
 
 						for (int j = 0; j < 2 && index+j < N; ++j) {
 							int probMutar = rand() % 10;
-							//cout << "Prob. mutar(" << j << ") = " << probMutar << endl;
 							if (probMutar < PM) {
-								poblacion[index+j].enteros.flip();
-								poblacion[index+j].decimales.flip();
+								if (rand() % 2)
+									poblacion[index+j].enteros.flip(rand() % 10);
+								else
+									poblacion[index+j].decimales.flip(rand() % 20);
 								poblacion[index+j].setError(original);
-								//cout << poblacion[index+j].enteros << " " << poblacion[index+j].decimales << " " << poblacion[index+j].toDouble() << endl;
 							}
 						}
 
