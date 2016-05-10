@@ -5,7 +5,7 @@
 #include <vector>
 #include <math.h>
 #include <algorithm>
-#include <unistd.h>
+#include <stdio.h>
 
 #define N 10000
 #define PC 7
@@ -60,7 +60,7 @@ int main () {
 		Numero *p1 = nullptr, *p2 = nullptr;
 		int index = N/2;
 		while (index < N) {
-			for (int i = 0; i < N/2; ++i) {
+			for (int i = 0; i < N/2 && index < N; ++i) {
 				int prob = rand() % 10;
 				if (prob < PC) {
 					if (!p1)
@@ -110,8 +110,6 @@ int main () {
 
 						index += 2;
 						p1 = p2 = nullptr;
-						if (index == N)
-							break;
 					}
 				}
 			}
@@ -125,4 +123,3 @@ int main () {
 
 	return 0;
 }
-
