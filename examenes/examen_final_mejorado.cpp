@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <signal.h>
 
-#define N 40 
+#define N 60 
 #define P 10
 #define PROB 2
 
@@ -32,6 +32,10 @@ int main() {
 
 	int total = 0;
 	for (i = 0; i < P; ++i) {
+		if (costos[i] == 0) {
+			printf("El laberinto no tiene solución\n");
+			return 0;
+		}
 		total += costos[i];
 	}
 	printf("Costo total: %d\n\n", total);
@@ -60,19 +64,31 @@ void* laberinto(void* p) {
 		}
 	}
 
-	costos[id] = buscarCamino(0, start, end, 1);
+	buscarCamino(0, start, end, 1);
 }
 
 int buscarCamino(int i, int j, int end, int costo) {
-	mapa[i][j] = 2;
-	if (i == (size-1) && j == (end-1))
-		return costo;
-	else if ((i+1) < size && (j+1) < end && !(mapa[i+1][j+1]))
-		buscarCamino(i+1, j+1, end, costo+1);
-	else if ((i+1) < size && !(mapa[i+1][j]))
-		buscarCamino(i+1, j, end, costo+1);
-	else if ((j+1) < end && !(mapa[i][j+1]))
-		buscarCamino(i, j+1, end, costo+1);
+	int r1 = 0, r2 = 0, r3 = 0;
+
+	if (i == (size-1) && j == (end-1)) {
+		mapa[i][j] = 2;
+		costos[(end-1)/size] = costo;
+		return 1;
+	}
+
+	if ((i+1) < size && (j+1) < end && !(mapa[i+1][j+1]))
+		r1 = buscarCamino(i+1, j+1, end, costo+1);
+	if ((i+1) < size && !(mapa[i+1][j]))
+		r2 = buscarCamino(i+1, j, end, costo+1);
+	if ((j+1) < end && !(mapa[i][j+1]))
+		r3 = buscarCamino(i, j+1, end, costo+1);
+
+	if (r1 || r2 || r3) {
+		mapa[i][j] = 2;
+		return 1;
+	}
+	else
+		return 0;
 }
 
 void manejador(int s) {
@@ -85,3 +101,4 @@ void manejador(int s) {
 		printf("\n");
 	}
 }
+
