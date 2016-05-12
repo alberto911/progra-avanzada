@@ -5,8 +5,7 @@
 
 pthread_key_t key;
 
-void key_destruct(void* value)
-{
+void key_destruct(void* value) {
     free(value);
     pthread_setspecific(key, NULL);
 }
@@ -47,8 +46,7 @@ void* function2(void *arg) {
 	}
 }
 
-int main( void )
-{
+int main() {
     pthread_key_create(&key, key_destruct);
 	pthread_t thread1, thread2;
     pthread_create(&thread1, NULL, &function1, NULL);

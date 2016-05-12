@@ -9,7 +9,6 @@ int hombresEsperando = 0;
 int mujeresEsperando = 0;
 int hombresAdentro = 0;
 int mujeresAdentro = 0;
-int total = 0;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t libreHombres = PTHREAD_COND_INITIALIZER;

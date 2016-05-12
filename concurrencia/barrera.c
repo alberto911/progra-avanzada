@@ -22,7 +22,7 @@ void* action(void* p) {
 
 int main() {
 	srand(time(NULL));
-	pthread_barrier_init(&barrier, NULL, 3);
+	pthread_barrier_init(&barrier, NULL, 5);
 	pthread_t threads[5];
 	int i;
 
